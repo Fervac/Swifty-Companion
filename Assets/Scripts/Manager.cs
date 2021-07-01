@@ -37,13 +37,28 @@ public class Manager : MonoBehaviour
     }
     #endregion
 
+
+    public GameObject searchPanel;
+    public GameObject displayPanel;
     public InputField mainInputField;
     public string login;
     public Image img;
+    public Text UserErrorText;
 
     private void Awake()
     {
         Screen.SetResolution(720, 1280, false);
+    }
+
+    public void SwitchShowWindow(GameObject window)
+    {
+        window.SetActive(!window.activeInHierarchy);
+    }
+
+    public void SwitchView()
+    {
+        SwitchShowWindow(searchPanel);
+        SwitchShowWindow(displayPanel);
     }
 
     [Serializable]
@@ -92,15 +107,35 @@ public class Manager : MonoBehaviour
         www.SetRequestHeader("Authorization", "Bearer " + token.access_token);
         yield return www.SendWebRequest();
 
+        if (www.downloadHandler.text == "{}")
+        {
+            StartCoroutine(UserErrorCoroutine());
+
+            Debug.LogError(www.error);
+            yield break;
+        }
+
         var user = JsonUtility.FromJson<UserObject>(www.downloadHandler.text);
+        
 
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.LogError(www.error);
             yield break;
         }
+        else
+        {
+            StartCoroutine(LoadFromWeb(user.image_url));
+        }
+    }
 
-        StartCoroutine(LoadFromWeb(user.image_url));
+    IEnumerator UserErrorCoroutine()
+    {
+        UserErrorText.text = "Incorrect Login";
+
+        yield return new WaitForSeconds(2);
+
+        UserErrorText.text = "";
     }
 
 
@@ -117,6 +152,8 @@ public class Manager : MonoBehaviour
                 Vector2.zero, 1f);
             img.sprite = s;
         }
+
+        SwitchView();
     }
 
     [Serializable]
