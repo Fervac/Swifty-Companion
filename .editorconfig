@@ -1,0 +1,13 @@
+﻿[*.cs]
+
+# CS3003: Type is not CLS-compliant
+dotnet_diagnostic.CS3003.severity = none
+
+# CS3009: Base type is not CLS-compliant
+dotnet_diagnostic.CS3009.severity = none
+
+# CS3001: Argument type is not CLS-compliant
+dotnet_diagnostic.CS3001.severity = none
+
+# CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+dotnet_diagnostic.CS8632.severity = none
