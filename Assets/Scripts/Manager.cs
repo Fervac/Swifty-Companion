@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,6 +60,15 @@ public class Manager : MonoBehaviour
     public Sprite assembly;
     public Sprite order;
     public Sprite alliance;
+
+    // Progress bar
+    public int maximum;
+    public float current;
+    public Image mask;
+    public Text levelText;
+
+    // Infos
+    public Text walletText;
 
     private void Awake()
     {
@@ -141,10 +150,13 @@ public class Manager : MonoBehaviour
         else
         {
             DisplayNameText.text = user.displayname;
+            walletText.text = "wallet: " + user.wallet.ToString() + "₳";
 
             SetSkills(user);
 
             SetProjects(user);
+
+            //SetLevel(user);
 
             StartCoroutine(LoadFromWeb(user.image_url));
             
@@ -224,6 +236,8 @@ public class Manager : MonoBehaviour
         {
             if (cursusUsers.cursus_id == 21)
             {
+                SetLevel(cursusUsers);
+
                 foreach (Skill skill in cursusUsers.skills)
                 {
                     GameObject tmp = Instantiate(SkillPrefab);
@@ -235,6 +249,14 @@ public class Manager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void SetLevel(CursusUsers user)
+    {
+        current = (float)user.level;
+        float fillAmount = current / (float)maximum;
+        mask.fillAmount = fillAmount;
+        levelText.text = "level: " + user.level.ToString();
     }
 
     IEnumerator UserErrorCoroutine()
