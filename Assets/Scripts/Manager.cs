@@ -53,6 +53,14 @@ public class Manager : MonoBehaviour
     public Sprite check;
     public Sprite nocheck;
 
+
+    public Image coaBackground;
+
+    public Sprite federation;
+    public Sprite assembly;
+    public Sprite order;
+    public Sprite alliance;
+
     private void Awake()
     {
         Screen.SetResolution(720, 1280, false);
@@ -139,7 +147,45 @@ public class Manager : MonoBehaviour
             SetProjects(user);
 
             StartCoroutine(LoadFromWeb(user.image_url));
+            
+            StartCoroutine(LoadCoa(user, token));
         }
+    }
+
+    private IEnumerator LoadCoa(RootObject user, Token token)
+    {
+        var url = "https://api.intra.42.fr/v2/users/" + user.id + "/coalitions";
+
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("Authorization", "Bearer " + token.access_token);
+        yield return www.SendWebRequest();
+
+        if (www.downloadHandler.text == "{}")
+        {
+            StartCoroutine(UserErrorCoroutine());
+
+            Debug.Log(www.error);
+            yield break;
+        }
+
+        if (www.downloadHandler.text.Contains("The Federation"))
+        {
+            coaBackground.sprite = federation;
+        }
+        else if (www.downloadHandler.text.Contains("The Order"))
+        {
+            coaBackground.sprite = order;
+        }
+        else if (www.downloadHandler.text.Contains("The Alliance"))
+        {
+            coaBackground.sprite = alliance;
+        }
+        else if (www.downloadHandler.text.Contains("The Assembly"))
+        {
+            coaBackground.sprite = assembly;
+        }
+
+        SwitchView();
     }
 
     private void SetProjects(RootObject user)
@@ -214,8 +260,6 @@ public class Manager : MonoBehaviour
                 Vector2.zero, 1f);
             img.sprite = s;
         }
-
-        SwitchView();
     }
 
 
@@ -406,16 +450,4 @@ public class Manager : MonoBehaviour
         public DateTime created_at;
         public DateTime updated_at;
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }
