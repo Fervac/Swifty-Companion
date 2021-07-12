@@ -45,6 +45,14 @@ public class Manager : MonoBehaviour
     public Text UserErrorText;
     public Text DisplayNameText;
 
+    public GameObject SkillContent;
+    public GameObject SkillPrefab;
+
+    public GameObject ProjectContent;
+    public GameObject ProjectPrefab;
+    public Sprite check;
+    public Sprite nocheck;
+
     private void Awake()
     {
         Screen.SetResolution(720, 1280, false);
@@ -92,7 +100,7 @@ public class Manager : MonoBehaviour
 
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
-            Debug.LogError(www.error);
+            Debug.Log(www.error);
             yield break;
         }
 
@@ -111,7 +119,7 @@ public class Manager : MonoBehaviour
         {
             StartCoroutine(UserErrorCoroutine());
 
-            Debug.LogError(www.error);
+            Debug.Log(www.error);
             yield break;
         }
 
@@ -119,13 +127,67 @@ public class Manager : MonoBehaviour
 
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
-            Debug.LogError(www.error);
+            Debug.Log(www.error);
             yield break;
         }
         else
         {
             DisplayNameText.text = user.displayname;
+
+            SetSkills(user);
+
+            SetProjects(user);
+
             StartCoroutine(LoadFromWeb(user.image_url));
+        }
+    }
+
+    private void SetProjects(RootObject user)
+    {
+        foreach (Transform child in ProjectContent.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        foreach (ProjectsUsers projectsUsers in user.projects_users)
+        {
+            GameObject tmp = Instantiate(ProjectPrefab);
+            tmp.transform.SetParent(ProjectContent.transform);
+
+            tmp.GetComponent<ProjectScr>().projectName.text = projectsUsers.project.name;
+            tmp.GetComponent<ProjectScr>().projectGrade.text = projectsUsers.final_mark.ToString();
+            if (projectsUsers.final_mark >= 75)
+            {
+                tmp.GetComponent<ProjectScr>().validateSpr.sprite = check;
+            }
+            else
+            {
+                tmp.GetComponent<ProjectScr>().validateSpr.sprite = nocheck;
+            }
+        }
+    }
+
+    private void SetSkills(RootObject user)
+    {
+        foreach (Transform child in SkillContent.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        foreach (CursusUsers cursusUsers in user.cursus_users)
+        {
+            if (cursusUsers.cursus_id == 21)
+            {
+                foreach (Skill skill in cursusUsers.skills)
+                {
+                    GameObject tmp = Instantiate(SkillPrefab);
+                    tmp.transform.SetParent(SkillContent.transform);
+
+                    tmp.GetComponent<SkillScr>().skillName.text = skill.name;
+                    tmp.GetComponent<SkillScr>().skillLevel.text = skill.level.ToString();
+                    tmp.GetComponent<SkillScr>().skillPercent.text = skill.level.ToString();
+                }
+            }
         }
     }
 
@@ -155,41 +217,6 @@ public class Manager : MonoBehaviour
 
         SwitchView();
     }
-
-    [Serializable]
-    public class UserObject
-    {
-        public string id;
-        public string email;
-        public string login;
-        public string first_name;
-        public string last_name;
-        public string usual_first_name;
-        public string url;
-        public string phone;
-        public string displayname;
-        public string usual_full_name;
-        public string image_url;
-        public string staff;
-        public string correction_point;
-        public string wallet;
-        public string grade;
-        public string created_at;
-        public string updated_at;
-    }
-
-
-    //[Serializable]
-    // public class RootObject
-    // {
-    //     public string users;
-    // }
-
-
-
-
-
-
 
 
     [Serializable]
