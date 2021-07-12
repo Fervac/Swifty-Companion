@@ -37,6 +37,8 @@ public class Manager : MonoBehaviour
     #endregion
 
 
+    public Token token;
+
     public GameObject searchPanel;
     public GameObject displayPanel;
     public InputField mainInputField;
@@ -69,10 +71,16 @@ public class Manager : MonoBehaviour
 
     // Infos
     public Text walletText;
+    public Text evaluationText;
 
     private void Awake()
     {
         Screen.SetResolution(720, 1280, false);
+    }
+
+    private void Start()
+    {
+        StartCoroutine(SetToken());
     }
 
     public void SwitchShowWindow(GameObject window)
@@ -99,10 +107,11 @@ public class Manager : MonoBehaviour
     public void GetToken()
     {
         login = mainInputField.text;
-        StartCoroutine(PostRequest());
+
+        StartCoroutine(makeRequestWithToken(token));
     }
 
-    private IEnumerator PostRequest()
+    private IEnumerator SetToken()
     {
         Dictionary<string, string> content = new Dictionary<string, string>();
         //Fill key and value
@@ -113,7 +122,7 @@ public class Manager : MonoBehaviour
         UnityWebRequest www = UnityWebRequest.Post("https://api.intra.42.fr/oauth/token", content);
         yield return www.SendWebRequest();
 
-        Token deserializedPostData = JsonUtility.FromJson<Token>(www.downloadHandler.text);
+        token = JsonUtility.FromJson<Token>(www.downloadHandler.text);
 
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
@@ -121,7 +130,9 @@ public class Manager : MonoBehaviour
             yield break;
         }
 
-        StartCoroutine(makeRequestWithToken(deserializedPostData));
+        yield return new WaitForSeconds(float.Parse(token.expires_in));
+
+        SetToken();
     }
 
     IEnumerator makeRequestWithToken(Token token)
@@ -151,12 +162,11 @@ public class Manager : MonoBehaviour
         {
             DisplayNameText.text = user.displayname;
             walletText.text = "wallet: " + user.wallet.ToString() + "₳";
+            evaluationText.text = "evaluation points: " + user.correction_point.ToString();
 
             SetSkills(user);
 
             SetProjects(user);
-
-            //SetLevel(user);
 
             StartCoroutine(LoadFromWeb(user.image_url));
             
@@ -204,7 +214,7 @@ public class Manager : MonoBehaviour
     {
         foreach (Transform child in ProjectContent.transform)
         {
-            GameObject.Destroy(child.gameObject);
+            Destroy(child.gameObject);
         }
 
         foreach (ProjectsUsers projectsUsers in user.projects_users)
