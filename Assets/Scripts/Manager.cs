@@ -255,7 +255,9 @@ public class Manager : MonoBehaviour
 
                     tmp.GetComponent<SkillScr>().skillName.text = skill.name;
                     tmp.GetComponent<SkillScr>().skillLevel.text = skill.level.ToString();
-                    tmp.GetComponent<SkillScr>().skillPercent.text = skill.level.ToString();
+
+                    float percentage = (float)skill.level / 21;
+                    tmp.GetComponent<SkillScr>().mask.fillAmount = percentage;
                 }
             }
         }

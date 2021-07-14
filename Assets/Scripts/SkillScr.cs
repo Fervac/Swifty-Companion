@@ -7,5 +7,5 @@ public class SkillScr : MonoBehaviour
 {
     public Text skillName;
     public Text skillLevel;
-    public Text skillPercent;
+    public Image mask;
 }
