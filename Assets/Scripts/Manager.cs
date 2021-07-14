@@ -244,6 +244,23 @@ public class Manager : MonoBehaviour
 
         foreach (CursusUsers cursusUsers in user.cursus_users)
         {
+            if (cursusUsers.cursus_id == 1)
+            {
+                SetLevel(cursusUsers);
+
+                foreach (Skill skill in cursusUsers.skills)
+                {
+                    GameObject tmp = Instantiate(SkillPrefab);
+                    tmp.transform.SetParent(SkillContent.transform);
+
+                    tmp.GetComponent<SkillScr>().skillName.text = skill.name;
+                    tmp.GetComponent<SkillScr>().skillLevel.text = skill.level.ToString();
+
+                    float percentage = (float)skill.level / 21;
+                    tmp.GetComponent<SkillScr>().mask.fillAmount = percentage;
+                }
+            }
+
             if (cursusUsers.cursus_id == 21)
             {
                 SetLevel(cursusUsers);
