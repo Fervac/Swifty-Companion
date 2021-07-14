@@ -54,6 +54,7 @@ public class Manager : MonoBehaviour
     public GameObject ProjectPrefab;
     public Sprite check;
     public Sprite nocheck;
+    public Sprite pending;
 
 
     public Image coaBackground;
@@ -223,14 +224,23 @@ public class Manager : MonoBehaviour
             tmp.transform.SetParent(ProjectContent.transform);
 
             tmp.GetComponent<ProjectScr>().projectName.text = projectsUsers.project.name;
-            tmp.GetComponent<ProjectScr>().projectGrade.text = projectsUsers.final_mark.ToString();
-            if (projectsUsers.final_mark >= 75)
+
+            if (projectsUsers.status == "finished")
             {
-                tmp.GetComponent<ProjectScr>().validateSpr.sprite = check;
+                tmp.GetComponent<ProjectScr>().projectGrade.text = projectsUsers.final_mark.ToString();
+                if (projectsUsers.final_mark >= 75)
+                {
+                    tmp.GetComponent<ProjectScr>().validateSpr.sprite = check;
+                }
+                else
+                {
+                    tmp.GetComponent<ProjectScr>().validateSpr.sprite = nocheck;
+                }
             }
             else
             {
-                tmp.GetComponent<ProjectScr>().validateSpr.sprite = nocheck;
+                tmp.GetComponent<ProjectScr>().projectGrade.text = projectsUsers.status;
+                tmp.GetComponent<ProjectScr>().validateSpr.sprite = pending;
             }
         }
     }
@@ -264,6 +274,11 @@ public class Manager : MonoBehaviour
             if (cursusUsers.cursus_id == 21)
             {
                 SetLevel(cursusUsers);
+
+                foreach (Transform child in SkillContent.transform)
+                {
+                    GameObject.Destroy(child.gameObject);
+                }
 
                 foreach (Skill skill in cursusUsers.skills)
                 {
